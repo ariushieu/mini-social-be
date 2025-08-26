@@ -1,12 +1,14 @@
 package com.isocial.minisocialbe.dto.comment;
 
 import com.isocial.minisocialbe.dto.user.UserResponseDto;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@Builder
 public class CommentResponseDto {
     private Integer id;
     private Integer postId;

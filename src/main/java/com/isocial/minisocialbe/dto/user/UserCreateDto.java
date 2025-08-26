@@ -2,10 +2,12 @@ package com.isocial.minisocialbe.dto.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 
 @Data
+@Builder
 public class UserCreateDto {
     @NotBlank(message = "Username cannot be empty")
     @Size(min = 5, max = 12, message = "Username must be between 5 and 12 characters")

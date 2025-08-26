@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
+
 public class UserLoginDto {
     @NotBlank(message = "Email cannot be empty")
     @Email(message = "Invalid email format")

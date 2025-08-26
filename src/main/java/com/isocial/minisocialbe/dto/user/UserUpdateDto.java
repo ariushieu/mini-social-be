@@ -2,9 +2,11 @@ package com.isocial.minisocialbe.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class UserUpdateDto {
     private String id;
 

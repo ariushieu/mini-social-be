@@ -3,9 +3,11 @@ package com.isocial.minisocialbe.dto.comment;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class CommentUpdateDto {
     @NotNull(message = "Comment ID is required for update")
     private Integer id;
