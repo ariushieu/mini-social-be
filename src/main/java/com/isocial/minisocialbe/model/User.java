@@ -67,4 +67,26 @@ public class User {
     @OneToMany(mappedBy = "following")
     private List<Follow> followers;
 
+    @PrePersist
+    protected void onCreate() {
+        if (joinDate == null) {
+            this.joinDate = LocalDateTime.now();
+        }
+        if (followerCount == null) {
+            this.followerCount = 0;
+        }
+        if (followingCount == null) {
+            this.followingCount = 0;
+        }
+        if (role == null) {
+            this.role = "user";
+        }
+        if (status == null) {
+            this.status = "active";
+        }
+        if (lastLogin == null) {
+            this.lastLogin = LocalDateTime.now();
+        }
+    }
+
 }
