@@ -16,6 +16,7 @@ public class UserResponseDto {
     private String email;
     private String fullName;
     private String bio;
+    private String role;
     private String profilePicture;
     private Integer followerCount;
     private Integer followingCount;

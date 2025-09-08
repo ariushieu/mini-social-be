@@ -38,7 +38,6 @@ public class User {
     private String profilePicture;
 
     private String role;
-    private String status;
 
     @Column(name = "follower_count")
     private Integer followerCount;
@@ -80,9 +79,6 @@ public class User {
         }
         if (role == null) {
             this.role = "user";
-        }
-        if (status == null) {
-            this.status = "active";
         }
         if (lastLogin == null) {
             this.lastLogin = LocalDateTime.now();
