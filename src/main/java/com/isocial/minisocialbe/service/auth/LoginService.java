@@ -58,6 +58,7 @@ public class LoginService {
                     .email(user.getEmail())
                     .fullName(user.getFullName())
                     .bio(user.getBio())
+                    .role(user.getRole())
                     .profilePicture(user.getProfilePicture())
                     .followerCount(user.getFollowerCount())
                     .followingCount(user.getFollowingCount())

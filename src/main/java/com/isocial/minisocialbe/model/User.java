@@ -1,18 +1,14 @@
 package com.isocial.minisocialbe.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -66,6 +62,13 @@ public class User {
     @OneToMany(mappedBy = "following")
     private List<Follow> followers;
 
+    @Column(name = "is_enabled")
+    private boolean isEnabled = false;
+
+    @Column(name = "is_locked")
+    private boolean isLocked = false;
+
+    //create default value in first time sign up
     @PrePersist
     protected void onCreate() {
         if (joinDate == null) {

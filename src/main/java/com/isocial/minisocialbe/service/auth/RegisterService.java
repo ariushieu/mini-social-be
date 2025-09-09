@@ -21,12 +21,13 @@ public class RegisterService {
         }
 
         User newUser = new User();
-//        newUser.setUsername(userCreateDto.getUsername());
-//        newUser.setEmail(userCreateDto.getEmail());
-//        newUser.setPassword(userCreateDto.getPassword());
-//        newUser.setFullName(userCreateDto.getFullName());
-//        newUser.setBio(userCreateDto.getBio());
+        newUser.setUsername(userCreateDto.getUsername());
+        newUser.setEmail(userCreateDto.getEmail());
+        newUser.setPassword(userCreateDto.getPassword());
+        newUser.setFullName(userCreateDto.getFullName());
+        newUser.setBio(userCreateDto.getBio());
 
+        //encode password
         newUser.setPassword(passwordEncoder.encode(userCreateDto.getPassword()));
         return userRepository.save(newUser);
     }
