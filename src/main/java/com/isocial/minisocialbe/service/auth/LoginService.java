@@ -7,7 +7,9 @@ import com.isocial.minisocialbe.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,12 +43,13 @@ public class LoginService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("No found user"));
         try {
-            authenticationManager.authenticate(
+            Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, rawPassword)
             );
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            String accessToken = jwtService.generateAccessToken(user.getEmail());
-            String refreshToken = jwtService.generateRefreshToken(user.getEmail());
+            String accessToken = jwtService.generateAccessToken(userDetails);
+            String refreshToken = jwtService.generateRefreshToken(userDetails.getUsername());
 
             user.setLastLogin(LocalDateTime.now());
             user.setRefreshToken(refreshToken);
