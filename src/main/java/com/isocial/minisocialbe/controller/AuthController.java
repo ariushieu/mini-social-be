@@ -6,6 +6,7 @@ import com.isocial.minisocialbe.dto.user.UserLoginDto;
 import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.service.auth.LoginService;
 import com.isocial.minisocialbe.service.auth.RegisterService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class AuthController {
     private LoginService loginService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserCreateDto userCreateDto){
+    public ResponseEntity<String> registerUser(@Valid @RequestBody UserCreateDto userCreateDto){
 
             User registeredUser = registerService.registerNewUser(userCreateDto);
             if(registeredUser != null){
@@ -37,7 +38,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody UserLoginDto userLoginDto){
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody UserLoginDto userLoginDto){
         try {
             User user = loginService.findUserByEmail(userLoginDto.getEmail());
             LoginResponseDto response = loginService.login(userLoginDto.getEmail(), userLoginDto.getPassword());
