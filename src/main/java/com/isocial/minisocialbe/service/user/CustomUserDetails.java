@@ -16,6 +16,10 @@ import java.util.Objects;
 public class CustomUserDetails implements UserDetails {
     private final User user;
 
+    public User getUser() {
+        return user;
+    }
+
     public CustomUserDetails(User user) {
         this.user = user;
     }
