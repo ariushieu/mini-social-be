@@ -1,4 +1,4 @@
-package com.isocial.minisocialbe.model;
+package com.isocial.minisocialbe.enums;
 
 public enum TargetType {
     POST,

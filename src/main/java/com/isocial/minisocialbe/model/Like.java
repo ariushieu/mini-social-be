@@ -1,7 +1,7 @@
 package com.isocial.minisocialbe.model;
 
+import com.isocial.minisocialbe.enums.TargetType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

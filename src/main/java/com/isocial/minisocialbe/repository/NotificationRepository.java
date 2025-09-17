@@ -1,7 +1,7 @@
 package com.isocial.minisocialbe.repository;
 
 import com.isocial.minisocialbe.model.Notification;
-import com.isocial.minisocialbe.model.NotificationType;
+import com.isocial.minisocialbe.enums.NotificationType;
 import com.isocial.minisocialbe.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

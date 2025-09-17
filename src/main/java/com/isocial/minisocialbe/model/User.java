@@ -68,6 +68,9 @@ public class User {
     @Column(name = "is_locked")
     private boolean isLocked = false;
 
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
     //create default value in first time sign up
     @PrePersist
     protected void onCreate() {

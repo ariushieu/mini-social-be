@@ -1,5 +1,6 @@
 package com.isocial.minisocialbe.model;
 
+import com.isocial.minisocialbe.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 
