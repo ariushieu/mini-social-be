@@ -4,9 +4,13 @@ import com.isocial.minisocialbe.dto.user.UserCreateDto;
 import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.UserRepository;
 import com.isocial.minisocialbe.service.validate.RegisterValidation;
+import jakarta.mail.MessagingException;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.UnsupportedEncodingException;
 
 @Service
 public class RegisterService {
@@ -19,7 +23,10 @@ public class RegisterService {
     @Autowired
     private RegisterValidation registerValidation;
 
-    public User registerNewUser(UserCreateDto userCreateDto){
+    @Autowired
+    private MailService mailService;
+
+    public User registerNewUser(UserCreateDto userCreateDto, String siteURL) throws MessagingException, UnsupportedEncodingException {
         registerValidation.validateUserCreation(userCreateDto);
 
         User newUser = new User();
@@ -29,12 +36,27 @@ public class RegisterService {
         newUser.setFullName(userCreateDto.getFullName());
         newUser.setBio(userCreateDto.getBio());
 
+        String randomCode = RandomString.make(64);
+        newUser.setVerificationCode(randomCode);
+
         //encode password
         newUser.setPassword(passwordEncoder.encode(userCreateDto.getPassword()));
-        return userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
+
+        mailService.sendVerificationMail(savedUser, siteURL);
+        return savedUser;
     }
 
+    public boolean verify(String verificationCode) {
+        User user = userRepository.findByVerificationCode(verificationCode);
 
-
-
+        if (user == null || user.isEnabled()) {
+            return false;
+        } else {
+            user.setEnabled(true);
+            user.setVerificationCode(null);
+            userRepository.save(user);
+            return true;
+        }
+    }
 }
