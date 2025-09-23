@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -48,13 +50,18 @@ public class AuthController {
     }
 
     @GetMapping("/verify")
-    public String verifyUser(@RequestParam String code) {
+    public ResponseEntity<Map<String, Object>> verifyUser(@RequestParam String code) {
+        Map<String, Object> response = new HashMap<>();
         if (registerService.verify(code)) {
-            return "Tài khoản của bạn đã được xác thực thành công. Bây giờ bạn có thể đăng nhập.";
+            response.put("success", true);
+            response.put("message", "Tài khoản đã được xác thực thành công. Bạn sẽ chuyển đến trang đăng nhập sau 5 giây.");
         } else {
-            return "Mã xác thực không hợp lệ hoặc tài khoản đã được kích hoạt.";
+            response.put("success", false);
+            response.put("message", "Mã xác thực không hợp lệ hoặc tài khoản đã được kích hoạt.");
         }
+        return ResponseEntity.ok(response);
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody UserLoginDto userLoginDto){
