@@ -30,7 +30,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserCreateDto userCreateDto, HttpServletRequest request){
-
                 try{
                     String siteURL = getSiteURL(request);
                     registerService.registerNewUser(userCreateDto,siteURL);

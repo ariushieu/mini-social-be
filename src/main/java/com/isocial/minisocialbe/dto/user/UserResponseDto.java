@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserResponseDto {
     private Integer id;
     private String username;

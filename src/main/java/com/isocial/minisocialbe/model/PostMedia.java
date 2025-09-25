@@ -29,7 +29,16 @@ public class PostMedia {
     @Column(name = "media_type")
     private String mediaType;
 
+    @Column(name = "public_id", nullable = false)
+    private String publicId;
+
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    public PostMedia(String mediaUrl, String mediaType, String publicId) {
+        this.mediaUrl = mediaUrl;
+        this.mediaType = mediaType;
+        this.publicId = publicId;
+    }
 
 }

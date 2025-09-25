@@ -5,13 +5,15 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
+
 public class PostCreateDto {
     @NotBlank(message = "Post content cannot be empty")
     @Size(max = 1000, message = "Content cannot exceed 1000 characters")
     private String content;
 
-    private String mediaUrl;
-    private String mediaType;
+    private List<MediaCreateDto> mediaList;
 }
