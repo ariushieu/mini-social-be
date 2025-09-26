@@ -1,6 +1,5 @@
 package com.isocial.minisocialbe.dto.post;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,7 +11,7 @@ import java.util.List;
 public class PostResponseDto {
     private Integer id;
     private String content;
-    private AuthorDto user;
+    private AuthorResponseDto user;
     private Integer likeCount;
     private Integer commentCount;
     private LocalDateTime createdAt;

@@ -1,9 +1,8 @@
 package com.isocial.minisocialbe.service.post;
 
 import com.isocial.minisocialbe.dto.post.MediaResponseDto;
-import com.isocial.minisocialbe.dto.post.AuthorDto;
+import com.isocial.minisocialbe.dto.post.AuthorResponseDto;
 import com.isocial.minisocialbe.dto.post.PostResponseDto;
-import com.isocial.minisocialbe.dto.user.UserResponseDto;
 import com.isocial.minisocialbe.model.Post;
 import com.isocial.minisocialbe.model.PostMedia;
 import com.isocial.minisocialbe.model.User;
@@ -49,7 +48,7 @@ public class PostService {
         return PostResponseDto.builder()
                 .id(post.getId())
                 .content(post.getContent())
-                .user(AuthorDto.builder()
+                .user(AuthorResponseDto.builder()
                         .id(post.getUser().getId())
                         .username(post.getUser().getUsername())
                         .fullName(post.getUser().getFullName())
