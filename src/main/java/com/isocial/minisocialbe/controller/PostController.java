@@ -3,6 +3,7 @@ package com.isocial.minisocialbe.controller;
 import com.isocial.minisocialbe.dto.post.PostResponseDto;
 import com.isocial.minisocialbe.model.Post;
 import com.isocial.minisocialbe.service.post.PostService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,4 +39,15 @@ public class PostController {
         Post updatedPost = postService.updatePost(id, content, mediaFiles);
         return ResponseEntity.ok(updatedPost);
     }
+
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<Post>> getPostsByUserId(@PathVariable Integer userId) {
+//        List<Post> posts = postService.getPostByUserId(userId);
+//
+//        if (posts.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//        }
+//
+//        return new ResponseEntity<>(posts, HttpStatus.OK);
+//    }
 }

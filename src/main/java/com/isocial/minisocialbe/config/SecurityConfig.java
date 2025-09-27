@@ -5,6 +5,7 @@ import com.isocial.minisocialbe.service.user.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -60,7 +61,18 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/posts/**").hasRole("USER")
+
+                        // Cho phép MỌI request GET đến đường dẫn /api/posts/** nếu người dùng đã được xác thực.
+                        // Điều này bao gồm cả /api/posts/user/{userId} và /api/posts
+                        .requestMatchers(HttpMethod.GET, "/api/posts/**").authenticated()
+
+                        // Chỉ cho phép request POST (tạo mới) với quyền ROLE_USER
+                        .requestMatchers(HttpMethod.POST, "/api/posts").hasAuthority("ROLE_USER")
+
+                        // Mọi request còn lại (PUT, DELETE) cần có quyền ROLE_USER
+                        .requestMatchers("/api/posts/**").hasAuthority("ROLE_USER")
+
+                        // Các request khác (nếu có) phải được xác thực
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

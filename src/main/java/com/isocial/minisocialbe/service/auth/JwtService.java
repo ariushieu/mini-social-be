@@ -1,5 +1,6 @@
 package com.isocial.minisocialbe.service.auth;
 
+import com.isocial.minisocialbe.service.user.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -16,6 +17,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class JwtService {
@@ -38,15 +41,24 @@ public class JwtService {
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 
-    public String generateAccessToken(UserDetails userDetails) {
+    // Trong JwtService.java
+
+    public String generateAccessToken(CustomUserDetails userDetails) {
+        // 1. Lấy vai trò (role) từ userDetails
         String role = userDetails.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
                 .orElse("NO_ROLE");
 
+        // 2. Tạo Map để chứa tất cả các claims
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("userId", userDetails.getUser().getId());
+
+        // 3. Sử dụng setClaims() để thêm tất cả claim vào builder
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(userDetails.getUsername())
-                .claim("role", role)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)

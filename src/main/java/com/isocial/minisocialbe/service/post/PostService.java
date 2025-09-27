@@ -139,4 +139,8 @@ public class PostService {
 
         return postRepository.save(post);
     }
+
+//    public List<Post> getPostByUserId(Integer userId) {
+//       return postRepository.findByUserIdWithMedia(userId);
+//    }
 }

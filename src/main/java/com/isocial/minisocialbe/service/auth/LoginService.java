@@ -30,39 +30,39 @@ public class LoginService {
 
     public LoginResponseDto login(String email, String rawPassword) {
 
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, rawPassword)
-            );
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, rawPassword)
+        );
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-            User user = ((CustomUserDetails) userDetails).getUser();
+        User user = customUserDetails.getUser();
 
-            String accessToken = jwtService.generateAccessToken(userDetails);
-            String refreshToken = jwtService.generateRefreshToken(userDetails.getUsername());
+        String accessToken = jwtService.generateAccessToken(customUserDetails);
+        String refreshToken = jwtService.generateRefreshToken(customUserDetails.getUsername());
 
-            user.setLastLogin(LocalDateTime.now());
-            user.setRefreshToken(refreshToken);
-            userRepository.save(user);
+        user.setLastLogin(LocalDateTime.now());
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
 
-            UserResponseDto userResponseDto = UserResponseDto.builder()
-                    .id(user.getId())
-                    .username(user.getUsername())
-                    .email(user.getEmail())
-                    .fullName(user.getFullName())
-                    .bio(user.getBio())
-                    .role(user.getRole())
-                    .profilePicture(user.getProfilePicture())
-                    .followerCount(user.getFollowerCount())
-                    .followingCount(user.getFollowingCount())
-                    .joinDate(user.getJoinDate())
-                    .lastLogin(user.getLastLogin())
-                    .build();
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .bio(user.getBio())
+                .role(user.getRole())
+                .profilePicture(user.getProfilePicture())
+                .followerCount(user.getFollowerCount())
+                .followingCount(user.getFollowingCount())
+                .joinDate(user.getJoinDate())
+                .lastLogin(user.getLastLogin())
+                .build();
 
-            return LoginResponseDto.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .user(userResponseDto)
-                    .build();
+        return LoginResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponseDto)
+                .build();
 
     }
 }
