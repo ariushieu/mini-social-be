@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -54,29 +55,29 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            AccessDeniedHandler accessDeniedHandler // Đã inject thành công
+    ) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-
-                        // Cho phép MỌI request GET đến đường dẫn /api/posts/** nếu người dùng đã được xác thực.
-                        // Điều này bao gồm cả /api/posts/user/{userId} và /api/posts
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").authenticated()
-
-                        // Chỉ cho phép request POST (tạo mới) với quyền ROLE_USER
                         .requestMatchers(HttpMethod.POST, "/api/posts").hasAuthority("ROLE_USER")
-
-                        // Mọi request còn lại (PUT, DELETE) cần có quyền ROLE_USER
                         .requestMatchers("/api/posts/**").hasAuthority("ROLE_USER")
-
-                        // Các request khác (nếu có) phải được xác thực
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHandler)
+                );
+        // <<< KẾT THÚC PHẦN CẦN THÊM >>>
 
         return http.build();
     }

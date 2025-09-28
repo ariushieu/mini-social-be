@@ -38,10 +38,11 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
+    // Phương thức chuẩn hóa để chuyển đổi Entity sang DTO
     private PostResponseDto toDto(Post post) {
         List<MediaResponseDto> mediaDtos = post.getMedia() != null
                 ? post.getMedia().stream()
-                .map(m -> new MediaResponseDto(m.getMediaUrl(), m.getMediaType()))
+                .map(m -> new MediaResponseDto(m.getId(), m.getMediaUrl(), m.getMediaType()))
                 .collect(Collectors.toList())
                 : List.of();
 
@@ -60,8 +61,6 @@ public class PostService {
                 .media(mediaDtos)
                 .build();
     }
-
-
 
     @Transactional
     public PostResponseDto createPost(String content, List<MultipartFile> mediaFiles) throws IOException {
@@ -97,8 +96,6 @@ public class PostService {
 
         return toDto(postRepository.save(post));
     }
-
-
 
     @Transactional
     public Post updatePost(Integer postId, String newContent, List<MultipartFile> newMediaFiles) throws IOException {
@@ -140,7 +137,11 @@ public class PostService {
         return postRepository.save(post);
     }
 
-//    public List<Post> getPostByUserId(Integer userId) {
-//       return postRepository.findByUserIdWithMedia(userId);
-//    }
+    // Phương thức lấy danh sách posts theo userId
+    public List<PostResponseDto> getPostsByUserId(Integer userId){
+        List<Post> posts = postRepository.findByUserId(userId);
+        return posts.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
 }
