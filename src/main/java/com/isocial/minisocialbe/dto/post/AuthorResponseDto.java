@@ -1,5 +1,6 @@
 package com.isocial.minisocialbe.dto.post;
 
+import com.isocial.minisocialbe.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ public class AuthorResponseDto {
     private String username;
     private String fullName;
     private String profilePicture;
+
 }
 
 

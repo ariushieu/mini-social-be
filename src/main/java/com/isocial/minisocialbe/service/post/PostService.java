@@ -38,7 +38,6 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-    // Phương thức chuẩn hóa để chuyển đổi Entity sang DTO
     private PostResponseDto toDto(Post post) {
         List<MediaResponseDto> mediaDtos = post.getMedia() != null
                 ? post.getMedia().stream()
@@ -113,7 +112,6 @@ public class PostService {
             post.getMedia().clear();
         }
 
-        // Upload media mới nếu có
         if (newMediaFiles != null && !newMediaFiles.isEmpty()) {
             List<PostMedia> mediaList = newMediaFiles.stream()
                     .map(file -> {
@@ -137,7 +135,6 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    // Phương thức lấy danh sách posts theo userId
     public List<PostResponseDto> getPostsByUserId(Integer userId){
         List<Post> posts = postRepository.findByUserId(userId);
         return posts.stream()

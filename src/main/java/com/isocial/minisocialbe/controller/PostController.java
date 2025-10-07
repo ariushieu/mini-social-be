@@ -39,21 +39,4 @@ public class PostController {
         Post updatedPost = postService.updatePost(id, content, mediaFiles);
         return ResponseEntity.ok(updatedPost);
     }
-
-//    @GetMapping("/user/{userId}")
-//    public ResponseEntity<List<Post>> getPostsByUserId(@PathVariable Integer userId) {
-//        List<Post> posts = postService.getPostByUserId(userId);
-//
-//        if (posts.isEmpty()) {
-//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//        }
-//
-//        return new ResponseEntity<>(posts, HttpStatus.OK);
-//    }
-
-    @GetMapping("/lists/{userId}")
-    public ResponseEntity<List<PostResponseDto>> getPostsByUserId(@PathVariable Integer userId) {
-        List<PostResponseDto> posts = postService.getPostsByUserId(userId);
-        return ResponseEntity.ok(posts);
-    }
 }

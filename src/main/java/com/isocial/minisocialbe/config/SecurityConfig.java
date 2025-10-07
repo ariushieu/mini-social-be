@@ -58,7 +58,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            AccessDeniedHandler accessDeniedHandler // Đã inject thành công
+            AccessDeniedHandler accessDeniedHandler
     ) throws Exception {
 
         http
@@ -66,6 +66,7 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/profile/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/posts").hasAuthority("ROLE_USER")
                         .requestMatchers("/api/posts/**").hasAuthority("ROLE_USER")
@@ -77,7 +78,6 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler(accessDeniedHandler)
                 );
-        // <<< KẾT THÚC PHẦN CẦN THÊM >>>
 
         return http.build();
     }

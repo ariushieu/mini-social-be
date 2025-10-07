@@ -11,4 +11,5 @@ public class MediaResponseDto {
     private Integer id;
     private String mediaUrl;
     private String mediaType;
+
 }
