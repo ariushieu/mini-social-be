@@ -36,6 +36,16 @@ public class SecurityConfig {
 //        this.customUserDetailsService = customUserDetailsService;
 //    }
 
+    private static final String[] SWAGGER_WHITELIST = {
+            // Springdoc/OpenAPI URLs
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            // Các đường dẫn cần thiết cho giao diện cũ (nếu có)
+            "/webjars/**",
+            "/swagger-resources/**"
+    };
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -65,6 +75,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/profile/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").authenticated()
