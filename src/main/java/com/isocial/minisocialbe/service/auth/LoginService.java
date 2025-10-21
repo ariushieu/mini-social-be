@@ -5,6 +5,7 @@ import com.isocial.minisocialbe.dto.user.UserResponseDto;
 import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.UserRepository;
 import com.isocial.minisocialbe.service.user.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,15 +19,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class LoginService {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtService jwtService;
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     public LoginResponseDto login(String email, String rawPassword) {
 
@@ -37,12 +36,12 @@ public class LoginService {
 
         User user = customUserDetails.getUser();
 
-        String accessToken = jwtService.generateAccessToken(customUserDetails);
-        String refreshToken = jwtService.generateRefreshToken(customUserDetails.getUsername());
-
         user.setLastLogin(LocalDateTime.now());
-        user.setRefreshToken(refreshToken);
         userRepository.save(user);
+
+        user = refreshTokenService.rotateAndSaveNewToken(user);
+
+        String accessToken = jwtService.generateAccessToken(customUserDetails);
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .id(user.getId())
@@ -60,9 +59,9 @@ public class LoginService {
 
         return LoginResponseDto.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .refreshToken(user.getRefreshToken())
                 .user(userResponseDto)
                 .build();
-
     }
 }
+

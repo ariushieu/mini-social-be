@@ -42,4 +42,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(TokenRefreshException.class)
+    public ResponseEntity<Map<String, String>> handleTokenRefreshException(TokenRefreshException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Invalid or expired refresh token");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
 }

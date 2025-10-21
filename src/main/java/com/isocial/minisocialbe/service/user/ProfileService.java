@@ -7,20 +7,17 @@ import com.isocial.minisocialbe.dto.post.MediaResponseDto;
 import com.isocial.minisocialbe.model.Post;
 import com.isocial.minisocialbe.repository.PostRepository;
 import com.isocial.minisocialbe.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProfileService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-
-    public ProfileService(UserRepository userRepository, PostRepository postRepository) {
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
-    }
 
     public ProfileResponseDto getProfileByUserId(Integer userId) {
         ProfileResponseDto profile = userRepository.findProfileByUserId(userId);

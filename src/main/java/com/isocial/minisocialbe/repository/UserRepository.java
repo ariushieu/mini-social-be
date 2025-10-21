@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Repository
@@ -22,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT new com.isocial.minisocialbe.dto.user.ProfileResponseDto(u.id, u.username, u.fullName, u.bio, u.profilePicture, u.followerCount, u.followingCount, u.joinDate, u.lastLogin) " +
             "FROM User u WHERE u.id = :userId")
     ProfileResponseDto findProfileByUserId(Integer userId);
+
+    Optional<User> findUserByRefreshToken(String token);
 }

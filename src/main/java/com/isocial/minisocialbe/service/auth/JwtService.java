@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,12 +16,10 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
     private final UserDetailsService userDetailsService;
     @Value("${jwt.secret-key}")
@@ -28,9 +27,6 @@ public class JwtService {
 
     private Key SECRET_KEY;
 
-    public JwtService(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
 
     @PostConstruct
     public void init(){
@@ -38,13 +34,16 @@ public class JwtService {
         this.SECRET_KEY = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+//    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;
+//    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 
-    // Trong JwtService.java
+    @Value("${app.jwtAccessExpirationMs}")
+    private Long accessTokenDurationMs;
+
+    @Value("${app.jwtRefreshExpirationMs}")
+    private Long refreshTokenDurationMs;
 
     public String generateAccessToken(CustomUserDetails userDetails) {
-        // 1. Lấy vai trò (role) từ userDetails
         String role = userDetails.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
@@ -60,18 +59,19 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenDurationMs))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String generateRefreshToken(String email) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
-                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
-                .compact();
+//        return Jwts.builder()
+//                .setSubject(email)
+//                .setIssuedAt(new Date(System.currentTimeMillis()))
+//                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenDurationMs))
+//                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
+//                .compact();
+        return UUID.randomUUID().toString();
     }
 
     public boolean validateToken(String token) {

@@ -3,6 +3,7 @@ package com.isocial.minisocialbe.service.user;
 import com.isocial.minisocialbe.model.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,16 +13,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 
-
+@RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
     private final User user;
 
     public User getUser() {
         return user;
-    }
-
-    public CustomUserDetails(User user) {
-        this.user = user;
     }
 
     @Override

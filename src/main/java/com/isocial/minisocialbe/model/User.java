@@ -3,6 +3,7 @@ package com.isocial.minisocialbe.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -49,6 +50,9 @@ public class User {
 
     @Column(name = "refresh_token")
     private String refreshToken;
+
+    @Column(name = "refresh_token_expiry_date")
+    private Instant refreshTokenExpiryDate;
 
     @OneToMany(mappedBy = "user")
     private List<Post> posts;

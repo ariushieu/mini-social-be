@@ -5,6 +5,7 @@ import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.UserRepository;
 import com.isocial.minisocialbe.service.validate.RegisterValidation;
 import jakarta.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,18 +14,15 @@ import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 
 @Service
+@RequiredArgsConstructor
 public class RegisterService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private RegisterValidation registerValidation;
+    private final RegisterValidation registerValidation;
 
-    @Autowired
-    private MailService mailService;
+    private final MailService mailService;
 
     public User registerNewUser(UserCreateDto userCreateDto, String siteURL) throws MessagingException, UnsupportedEncodingException {
         registerValidation.validateUserCreation(userCreateDto);
