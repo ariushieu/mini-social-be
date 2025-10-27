@@ -1,4 +1,3 @@
-```markdown
 # iSocial: A Mini Social Network
 
 iSocial is a mini social network application that allows users to create posts, interact with content (like, comment), follow other users, and receive notifications. This project is built to showcase a full-stack application development.
