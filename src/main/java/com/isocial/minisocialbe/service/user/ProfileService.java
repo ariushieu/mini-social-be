@@ -9,6 +9,7 @@ import com.isocial.minisocialbe.repository.PostRepository;
 import com.isocial.minisocialbe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public ProfileResponseDto getProfileByUserId(Integer userId) {
+    public ProfileResponseDto getProfileByUserId(Long userId) {
         ProfileResponseDto profile = userRepository.findProfileByUserId(userId);
         if (profile == null) {
             throw new RuntimeException("User profile not found for userId: " + userId);

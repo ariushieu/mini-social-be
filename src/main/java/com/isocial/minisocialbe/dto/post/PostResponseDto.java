@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @Builder
 public class PostResponseDto {
-    private Integer id;
+    private Long id;
     private String content;
     private AuthorResponseDto user;
     private Integer likeCount;

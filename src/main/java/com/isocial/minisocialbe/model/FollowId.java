@@ -9,10 +9,13 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+
 
 @EqualsAndHashCode
 public class FollowId implements Serializable {
 
-    private Integer follower;
-    private Integer following;
+    private Long follower;
+    private Long following;
 }

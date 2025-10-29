@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class ProfileResponseDto {
-    private Integer id;
+    private Long id;
     private String username;
     private String email;
     private String fullName;
@@ -21,7 +21,7 @@ public class ProfileResponseDto {
     private List<PostResponseDto> posts;
 
 
-    public ProfileResponseDto(Integer id, String username, String fullName, String bio, String profilePicture, Integer followerCount, Integer followingCount, LocalDateTime joinDate, LocalDateTime lastLogin) {
+    public ProfileResponseDto(Long id, String username, String fullName, String bio, String profilePicture, Integer followerCount, Integer followingCount, LocalDateTime joinDate, LocalDateTime lastLogin) {
         this.id = id;
         this.username = username;
         this.fullName = fullName;

@@ -81,6 +81,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/posts").hasAuthority("ROLE_USER")
                         .requestMatchers("/api/posts/**").hasAuthority("ROLE_USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/follows/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/follows/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

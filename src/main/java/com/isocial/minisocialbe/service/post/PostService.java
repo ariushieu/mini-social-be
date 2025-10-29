@@ -97,7 +97,7 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Integer postId, String newContent, List<MultipartFile> newMediaFiles) throws IOException {
+    public Post updatePost(Long postId, String newContent, List<MultipartFile> newMediaFiles) throws IOException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
@@ -135,7 +135,7 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public List<PostResponseDto> getPostsByUserId(Integer userId){
+    public List<PostResponseDto> getPostsByUserId(Long userId){
         List<Post> posts = postRepository.findByUserId(userId);
         return posts.stream()
                 .map(this::toDto)

@@ -31,7 +31,7 @@ public class PostController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Post> updatePost(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestParam("content") String content,
             @RequestParam(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles
     ) throws IOException {
