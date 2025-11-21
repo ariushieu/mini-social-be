@@ -29,21 +29,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserByRefreshToken(String token);
 
     @Modifying
-    @Query("UPDATE User u SET u.followerCount = u.followerCount + 1 WHERE u.id = :userId")
+    @Query(value = "UPDATE users SET follower_count = follower_count + 1 WHERE id = :userId", nativeQuery = true)
     void incrementFollowerCount(@Param("userId") Long userId);
 
-    // Giảm số lượng người theo dõi (Follower Count)
     @Modifying
-    @Query("UPDATE User u SET u.followerCount = u.followerCount - 1 WHERE u.id = :userId")
+    @Query(value = "UPDATE users SET follower_count = follower_count - 1 WHERE id = :userId", nativeQuery = true)
     void decrementFollowerCount(@Param("userId") Long userId);
 
-    // Tăng số lượng người mà User đang theo dõi (Following Count)
     @Modifying
-    @Query("UPDATE User u SET u.followingCount = u.followingCount + 1 WHERE u.id = :userId")
+    @Query(value = "UPDATE users SET following_count = following_count + 1 WHERE id = :userId", nativeQuery = true)
     void incrementFollowingCount(@Param("userId") Long userId);
 
-    // Giảm số lượng người mà User đang theo dõi (Following Count)
     @Modifying
-    @Query("UPDATE User u SET u.followingCount = u.followingCount - 1 WHERE u.id = :userId")
+    @Query(value = "UPDATE users SET following_count = following_count - 1 WHERE id = :userId", nativeQuery = true)
     void decrementFollowingCount(@Param("userId") Long userId);
 }

@@ -19,13 +19,13 @@ public class Follow {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("follower")
-    @JoinColumn(name = "follower_id")
-    private User follower;
+    @JoinColumn(name = "follower_id", insertable = false, updatable = false)
+    private User followerUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("following")
-    @JoinColumn(name = "following_id")
-    private User following;
+    @JoinColumn(name = "following_id", insertable = false, updatable = false)
+    private User followingUser;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

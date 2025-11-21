@@ -13,22 +13,30 @@ import java.util.Optional;
 
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, FollowId> {
-    boolean existsByFollower_IdAndFollowing_Id(Long followerId, Long followingId);
 
-    Optional<Follow> findByFollower_IdAndFollowing_Id(Long followerId, Long followingId);
+    // 1. Kiểm tra tồn tại (Đã đúng)
+    boolean existsById_FollowerAndId_Following(Long followerId, Long followingId);
 
-    //for new feeds
-    @Query("SELECT f.following.id FROM Follow f WHERE f.follower.id = :followerId")
+    // 2. Tìm kiếm (Giữ lại phiên bản cú pháp đúng)
+    Optional<Follow> findById_FollowerAndId_Following(Long followerId, Long followingId);
+
+    // 3. Đếm số lượng Followers (Ai theo dõi người này)
+    long countById_Following(Long followingId);
+
+    // 4. Đếm số lượng Following (Người này theo dõi ai)
+    long countById_Follower(Long followerId);
+
+    // 5. Lấy danh sách Following (Đã đúng)
+    List<Follow> findAllById_Follower(Long followerId);
+
+    // 6. Lấy danh sách Followers (Đã đúng)
+    List<Follow> findAllById_Following(Long followingId);
+
+    // 7. Native Query (Vẫn đúng)
+    @Query(value = "SELECT following_id FROM follows WHERE follower_id = :followerId", nativeQuery = true)
     List<Long> findFollowingIdsByFollowerId(@Param("followerId") Long followerId);
 
-    //tong follower
-    long countByFollowing_Id(Long followingId);
-
-    //tong following
-    long countByFollower_Id(Long followerId);
-
-    List<Follow> findAllByFollower_Id(Long followerId);
-    List<Follow> findAllByFollowing_Id(Long  followingId);
-
-
+    @Modifying
+    @Query("DELETE FROM Follow f WHERE f.id.follower = :followerId AND f.id.following = :followingId")
+    void deleteByFollowerAndFollowing(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
 }

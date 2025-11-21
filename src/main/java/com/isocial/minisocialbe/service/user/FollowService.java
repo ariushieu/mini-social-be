@@ -7,7 +7,7 @@ import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.FollowRepository;
 import com.isocial.minisocialbe.repository.UserRepository;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
+// import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -17,20 +17,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-
+//@RequiredArgsConstructor: Circular Dependency
 public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
-    private final FollowService followServiceProxy;
+//    private final FollowService followServiceProxy;
 
-    private final EntityManager entityManager;
+    // private final EntityManager entityManager;
+
 
     public FollowService(FollowRepository followRepository, UserRepository userRepository, @Lazy FollowService followServiceProxy, EntityManager entityManager) {
         this.followRepository = followRepository;
         this.userRepository = userRepository;
-        this.followServiceProxy = followServiceProxy;
-        this.entityManager = entityManager;
+//        this.followServiceProxy = followServiceProxy;
+        // this.entityManager = entityManager;
     }
 
     @Transactional
@@ -38,34 +39,42 @@ public class FollowService {
         if (followerId.equals(followingId)) {
             throw new IllegalArgumentException("You cannot follow yourself.");
         }
-        if (followRepository.existsByFollower_IdAndFollowing_Id(followerId, followingId)) {
+
+        // Dùng findById để check, nếu có thì throw
+        if (followRepository.findById(new FollowId(followerId, followingId)).isPresent()) {
             throw new IllegalArgumentException("You already follow this user.");
         }
 
+        User followerRef = userRepository.getReferenceById(followerId);
+        User followingRef = userRepository.getReferenceById(followingId);
+
         Follow follow = Follow.builder()
                 .id(FollowId.builder().follower(followerId).following(followingId).build())
-                .follower(userRepository.getReferenceById(followerId)) // Gây Dirty Checking
-                .following(userRepository.getReferenceById(followingId)) // Gây Dirty Checking
+                .followerUser(followerRef)
+                .followingUser(followingRef)
                 .createdAt(LocalDateTime.now())
                 .build();
-        followRepository.save(follow);
 
-        followServiceProxy.updateFollowCounts(followerId, followingId, true);
+        followRepository.saveAndFlush(follow); // Đổi thành saveAndFlush
+
+        this.updateFollowCounts(followerId, followingId, true);
     }
 
     @Transactional
     public void unfollowUser(Long followerId, Long followingId) {
-        Follow follow = followRepository.findByFollower_IdAndFollowing_Id(followerId, followingId)
-                .orElseThrow(() -> new ResourceNotFoundException("You do not follow this user."));
+        if (!followRepository.existsById_FollowerAndId_Following(followerId, followingId)) {
+            throw new ResourceNotFoundException("You do not follow this user.");
+        }
 
-        followRepository.delete(follow);
+        followRepository.deleteByFollowerAndFollowing(followerId, followingId);
 
-        followServiceProxy.updateFollowCounts(followerId, followingId, false);
+        this.updateFollowCounts(followerId, followingId, false);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    // @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateFollowCounts(Long followerId, Long followingId, boolean isFollow) {
-        entityManager.clear();
+//        System.out.println("updateFollowCounts called: follower=" + followerId + ", following=" + followingId + ", isFollow=" + isFollow);
+//       entityManager.clear();
 
         if (isFollow) {
             userRepository.incrementFollowingCount(followerId);
@@ -74,6 +83,8 @@ public class FollowService {
             userRepository.decrementFollowingCount(followerId);
             userRepository.decrementFollowerCount(followingId);
         }
+
+        System.out.println("=== END updateFollowCounts ===");
     }
 
     public List<Long> getFollowingIds(Long userId) {

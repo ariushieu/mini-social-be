@@ -60,11 +60,11 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Comment> comments;
 
-    @OneToMany(mappedBy = "follower")
-    private List<Follow> following;
-
-    @OneToMany(mappedBy = "following")
-    private List<Follow> followers;
+//    @OneToMany(mappedBy = "follower")
+//    private List<Follow> following;
+//
+//    @OneToMany(mappedBy = "following")
+//    private List<Follow> followers;
 
     @Column(name = "is_enabled")
     private boolean isEnabled = false;
