@@ -2,9 +2,7 @@ package com.isocial.minisocialbe.model;
 
 import com.isocial.minisocialbe.enums.TargetType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -13,18 +11,20 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @Column(name = "target_id")
-    private Integer targetId;
+    private Long targetId;
 
     @Column(name = "target_type")
     @Enumerated(EnumType.STRING)

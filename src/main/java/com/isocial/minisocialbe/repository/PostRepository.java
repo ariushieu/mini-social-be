@@ -3,6 +3,7 @@ package com.isocial.minisocialbe.repository;
 import com.isocial.minisocialbe.dto.post.PostResponseDto;
 import com.isocial.minisocialbe.model.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT DISTINCT p FROM Post p JOIN FETCH p.user u LEFT JOIN FETCH p.media m WHERE u.id = :userId")
     List<Post> findByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query(value = "UPDATE posts SET like_count = like_count + 1 WHERE id = :postId", nativeQuery = true)
+    void incrementLikeCount(@Param("postId") Long postId);
+
+    @Modifying
+    @Query(value = "UPDATE posts SET like_count = like_count - 1 WHERE id = :postId", nativeQuery = true)
+    void decrementLikeCount(@Param("postId") Long postId);
 }
