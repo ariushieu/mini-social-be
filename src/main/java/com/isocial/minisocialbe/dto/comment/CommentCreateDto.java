@@ -13,9 +13,9 @@ public class CommentCreateDto {
     private Integer userId;
 
     @NotNull(message = "Post ID is required")
-    private Integer postId;
+    private Long postId;
 
-    private Integer parentCommentId;
+    private Long parentCommentId;
 
     @NotBlank(message = "Comment content cannot be empty")
     @Size(max = 500, message = "Comment cannot exceed 500 characters")

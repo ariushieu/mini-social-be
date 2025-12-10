@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 public class CommentUpdateDto {
     @NotNull(message = "Comment ID is required for update")
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Comment content cannot be empty")
     @Size(max = 500, message = "Comment cannot exceed 500 characters")

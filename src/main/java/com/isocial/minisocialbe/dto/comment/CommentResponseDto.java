@@ -10,8 +10,8 @@ import java.util.List;
 @Data
 @Builder
 public class CommentResponseDto {
-    private Integer id;
-    private Integer postId;
+    private Long id;
+    private Long postId;
     private UserResponseDto user;
     private String commentText;
     private Integer likeCount;
