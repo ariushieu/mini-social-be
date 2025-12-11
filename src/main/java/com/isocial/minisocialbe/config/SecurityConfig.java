@@ -37,11 +37,11 @@ public class SecurityConfig {
 //    }
 
     private static final String[] SWAGGER_WHITELIST = {
-            // Springdoc/OpenAPI URLs
+            "/v3/api-docs",
             "/v3/api-docs/**",
+            "/v3/api-docs.yaml",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            // Các đường dẫn cần thiết cho giao diện cũ (nếu có)
             "/webjars/**",
             "/swagger-resources/**"
     };
