@@ -16,8 +16,8 @@ public class CommentResponseDto {
     private String commentText;
     private Integer likeCount;
     private Integer replyCount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private java.time.Instant createdAt;
+    private java.time.Instant updatedAt;
 
     private List<CommentResponseDto> replies;
 }

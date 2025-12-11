@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 public class CommentCreateDto {
     @NotNull(message = "User ID is required")
-    private Integer userId;
+    private Long userId;
 
     @NotNull(message = "Post ID is required")
     private Long postId;

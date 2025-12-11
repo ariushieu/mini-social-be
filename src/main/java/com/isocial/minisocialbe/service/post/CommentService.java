@@ -60,9 +60,9 @@ public class CommentService {
                 .user(user)
                 .commentText(dto.getCommentText())
                 .likeCount(0)
-                .replyCount(0)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now());
+                .replyCount(0);
+//                .createdAt(LocalDateTime.now())
+//                .updatedAt(LocalDateTime.now());
 
         if (dto.getParentCommentId() != null) {
             Comment parentComment = commentRepository.findById(dto.getParentCommentId())
@@ -118,7 +118,6 @@ public class CommentService {
 
         // Sử dụng setter vì không thể rebuild toàn bộ entity đã persist
         comment.setCommentText(dto.getCommentText());
-        comment.setUpdatedAt(LocalDateTime.now());
 
         Comment updatedComment = commentRepository.save(comment);
         return toDto(updatedComment);

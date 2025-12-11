@@ -2,6 +2,8 @@ package com.isocial.minisocialbe.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,11 +44,13 @@ public class Comment {
     @Column(name = "reply_count")
     private Integer replyCount;
 
+    @CreationTimestamp
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private java.time.Instant createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private java.time.Instant updatedAt;
 
 //    @PrePersist
 //    protected void onCreate() {
