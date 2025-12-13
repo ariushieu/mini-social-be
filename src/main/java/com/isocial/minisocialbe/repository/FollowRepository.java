@@ -2,6 +2,8 @@ package com.isocial.minisocialbe.repository;
 
 import com.isocial.minisocialbe.model.Follow;
 import com.isocial.minisocialbe.model.FollowId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,10 +16,10 @@ import java.util.Optional;
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, FollowId> {
 
-    // 1. Kiểm tra tồn tại (Đã đúng)
+    // 1. Kiểm tra tồn tại
     boolean existsById_FollowerAndId_Following(Long followerId, Long followingId);
 
-    // 2. Tìm kiếm (Giữ lại phiên bản cú pháp đúng)
+    // 2. Tìm kiếm
     Optional<Follow> findById_FollowerAndId_Following(Long followerId, Long followingId);
 
     // 3. Đếm số lượng Followers (Ai theo dõi người này)
@@ -26,13 +28,21 @@ public interface FollowRepository extends JpaRepository<Follow, FollowId> {
     // 4. Đếm số lượng Following (Người này theo dõi ai)
     long countById_Follower(Long followerId);
 
-    // 5. Lấy danh sách Following (Đã đúng)
+    // 5. Lấy danh sách Following (không phân trang)
     List<Follow> findAllById_Follower(Long followerId);
 
-    // 6. Lấy danh sách Followers (Đã đúng)
+    // 6. Lấy danh sách Followers (không phân trang)
     List<Follow> findAllById_Following(Long followingId);
 
-    // 7. Native Query (Vẫn đúng)
+    // 7. Lấy danh sách Following (có phân trang)
+    @Query("SELECT f FROM Follow f JOIN FETCH f.followingUser WHERE f.id.follower = :followerId ORDER BY f.createdAt DESC")
+    Page<Follow> findAllById_Follower(@Param("followerId") Long followerId, Pageable pageable);
+
+    // 8. Lấy danh sách Followers (có phân trang)
+    @Query("SELECT f FROM Follow f JOIN FETCH f.followerUser WHERE f.id.following = :followingId ORDER BY f.createdAt DESC")
+    Page<Follow> findAllById_Following(@Param("followingId") Long followingId, Pageable pageable);
+
+    // 9. Native Query - lấy danh sách following IDs
     @Query(value = "SELECT following_id FROM follows WHERE follower_id = :followerId", nativeQuery = true)
     List<Long> findFollowingIdsByFollowerId(@Param("followerId") Long followerId);
 
