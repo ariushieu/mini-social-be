@@ -107,8 +107,12 @@ GET    /api/v1/comments/{commentId}/likes/check - Check like status
 ### Follow
 
 ```
-POST   /api/v1/follows/{userId}  - Follow user
-DELETE /api/v1/follows/{userId}  - Unfollow user
+POST   /api/v1/follows/{userId}             - Follow user
+DELETE /api/v1/follows/{userId}             - Unfollow user
+GET    /api/v1/follows/{userId}/followers   - Get followers (paginated)
+GET    /api/v1/follows/{userId}/following   - Get following (paginated)
+GET    /api/v1/follows/{userId}/stats       - Get follow stats
+GET    /api/v1/follows/check/{targetUserId} - Check follow status
 ```
 
 ## Request Examples
