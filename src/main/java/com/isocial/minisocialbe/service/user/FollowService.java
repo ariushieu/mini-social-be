@@ -1,5 +1,7 @@
 package com.isocial.minisocialbe.service.user;
 
+import com.isocial.minisocialbe.dto.user.FollowStatsDto;
+import com.isocial.minisocialbe.dto.user.FollowUserDto;
 import com.isocial.minisocialbe.exception.ResourceNotFoundException;
 import com.isocial.minisocialbe.model.Follow;
 import com.isocial.minisocialbe.model.FollowId;
@@ -7,31 +9,25 @@ import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.FollowRepository;
 import com.isocial.minisocialbe.repository.UserRepository;
 import jakarta.persistence.EntityManager;
-// import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
-//@RequiredArgsConstructor: Circular Dependency
 public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
-//    private final FollowService followServiceProxy;
-
-    // private final EntityManager entityManager;
-
-
     public FollowService(FollowRepository followRepository, UserRepository userRepository, @Lazy FollowService followServiceProxy, EntityManager entityManager) {
         this.followRepository = followRepository;
         this.userRepository = userRepository;
-//        this.followServiceProxy = followServiceProxy;
-        // this.entityManager = entityManager;
     }
 
     @Transactional
@@ -84,11 +80,87 @@ public class FollowService {
             userRepository.decrementFollowerCount(followingId);
         }
 
-        System.out.println("=== END updateFollowCounts ===");
+//        System.out.println("=== END updateFollowCounts ===");
     }
 
     public List<Long> getFollowingIds(Long userId) {
         return followRepository.findFollowingIdsByFollowerId(userId);
+    }
+
+    public boolean isFollowing(Long followerId, Long followingId) {
+        return followRepository.existsById_FollowerAndId_Following(followerId, followingId);
+    }
+
+    /**
+     * Lấy danh sách followers của một user (ai theo dõi user này)
+     */
+    @Transactional(readOnly = true)
+    public Page<FollowUserDto> getFollowers(Long userId, Long currentUserId, Pageable pageable) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User không tồn tại.");
+        }
+
+        Page<Follow> followers = followRepository.findAllById_Following(userId, pageable);
+        
+        // Lấy danh sách ID của những người mà currentUser đang follow
+        Set<Long> currentUserFollowingIds = currentUserId != null 
+            ? followRepository.findFollowingIdsByFollowerId(currentUserId).stream().collect(Collectors.toSet())
+            : Set.of();
+
+        return followers.map(follow -> mapToFollowUserDto(follow.getFollowerUser(), follow.getCreatedAt(), currentUserFollowingIds));
+    }
+
+    /**
+     * Lấy danh sách following của một user (user này theo dõi ai)
+     */
+    @Transactional(readOnly = true)
+    public Page<FollowUserDto> getFollowing(Long userId, Long currentUserId, Pageable pageable) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User không tồn tại.");
+        }
+
+        Page<Follow> following = followRepository.findAllById_Follower(userId, pageable);
+        
+        // Lấy danh sách ID của những người mà currentUser đang follow
+        Set<Long> currentUserFollowingIds = currentUserId != null 
+            ? followRepository.findFollowingIdsByFollowerId(currentUserId).stream().collect(Collectors.toSet())
+            : Set.of();
+
+        return following.map(follow -> mapToFollowUserDto(follow.getFollowingUser(), follow.getCreatedAt(), currentUserFollowingIds));
+    }
+
+    /**
+     * Lấy thống kê follow của một user
+     */
+    @Transactional(readOnly = true)
+    public FollowStatsDto getFollowStats(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User không tồn tại."));
+
+        return FollowStatsDto.builder()
+                .userId(userId)
+                .followerCount(user.getFollowerCount())
+                .followingCount(user.getFollowingCount())
+                .build();
+    }
+
+    /**
+     * Kiểm tra mutual follow (cả hai đều follow nhau)
+     */
+    public boolean isMutualFollow(Long userId1, Long userId2) {
+        return isFollowing(userId1, userId2) && isFollowing(userId2, userId1);
+    }
+
+    private FollowUserDto mapToFollowUserDto(User user, LocalDateTime followedAt, Set<Long> currentUserFollowingIds) {
+        return FollowUserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .fullName(user.getFullName())
+                .profilePicture(user.getProfilePicture())
+                .bio(user.getBio())
+                .isFollowing(currentUserFollowingIds.contains(user.getId()))
+                .followedAt(followedAt)
+                .build();
     }
 }
 
