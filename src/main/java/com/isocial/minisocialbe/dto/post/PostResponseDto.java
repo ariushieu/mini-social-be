@@ -16,4 +16,5 @@ public class PostResponseDto {
     private Integer commentCount;
     private LocalDateTime createdAt;
     private List<MediaResponseDto> media;
+    private Boolean isLiked;
 }
