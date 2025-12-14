@@ -46,4 +46,19 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             nativeQuery = true)
     Page<Post> findByUserIdInNative(@Param("userIds") List<Long> userIds, Pageable pageable);
 
+    // Random posts, loại trừ users đã follow
+    @Query(value = "SELECT * FROM posts WHERE user_id NOT IN :excludedUserIds " +
+            "ORDER BY RAND() LIMIT :limit",
+            nativeQuery = true)
+    List<Post> findRandomPosts(@Param("excludedUserIds") List<Long> excludedUserIds,
+                               @Param("limit") int limit);
+
+    // Hoặc dùng Pageable
+    @Query(value = "SELECT * FROM posts WHERE user_id NOT IN :excludedUserIds " +
+            "ORDER BY RAND()",
+            nativeQuery = true)
+    Page<Post> findRandomPostsPageable(@Param("excludedUserIds") List<Long> excludedUserIds,
+                                       Pageable pageable);
+
+
 }
