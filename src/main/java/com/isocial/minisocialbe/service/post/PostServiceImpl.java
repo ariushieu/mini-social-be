@@ -1,16 +1,18 @@
 package com.isocial.minisocialbe.service.post;
 
-import com.isocial.minisocialbe.dto.post.MediaResponseDto;
-import com.isocial.minisocialbe.dto.post.AuthorResponseDto;
 import com.isocial.minisocialbe.dto.post.PostResponseDto;
+import com.isocial.minisocialbe.mapper.PostMapper;
 import com.isocial.minisocialbe.model.Post;
 import com.isocial.minisocialbe.model.PostMedia;
 import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.PostMediaRepository;
 import com.isocial.minisocialbe.repository.PostRepository;
 import com.isocial.minisocialbe.repository.UserRepository;
-import com.isocial.minisocialbe.service.CloudinaryService;
+
+import com.isocial.minisocialbe.service.storage.StorageService;
+import com.isocial.minisocialbe.service.storage.UploadResult;
 import com.isocial.minisocialbe.service.user.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,47 +22,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
-public class PostService {
+public class PostServiceImpl implements IPostService{
 
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
-    private final CloudinaryService cloudinaryService;
+    private final StorageService storageService;
     private final UserRepository userRepository;
+    private final PostMapper postMapper;
 
-    public PostService(PostRepository postRepository,
-                       PostMediaRepository postMediaRepository,
-                       CloudinaryService cloudinaryService,
-                       UserRepository userRepository) {
-        this.postRepository = postRepository;
-        this.postMediaRepository = postMediaRepository;
-        this.cloudinaryService = cloudinaryService;
-        this.userRepository = userRepository;
-    }
 
-    private PostResponseDto toDto(Post post) {
-        List<MediaResponseDto> mediaDtos = post.getMedia() != null
-                ? post.getMedia().stream()
-                .map(m -> new MediaResponseDto(m.getId(), m.getMediaUrl(), m.getMediaType()))
-                .collect(Collectors.toList())
-                : List.of();
-
-        return PostResponseDto.builder()
-                .id(post.getId())
-                .content(post.getContent())
-                .user(AuthorResponseDto.builder()
-                        .id(post.getUser().getId())
-                        .username(post.getUser().getUsername())
-                        .fullName(post.getUser().getFullName())
-                        .profilePicture(post.getUser().getProfilePicture())
-                        .build())
-                .likeCount(post.getLikeCount())
-                .commentCount(post.getCommentCount())
-                .createdAt(post.getCreatedAt())
-                .media(mediaDtos)
-                .build();
-    }
-
+    @Override
     @Transactional
     public PostResponseDto createPost(String content, List<MultipartFile> mediaFiles) throws IOException {
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -77,11 +50,11 @@ public class PostService {
             List<PostMedia> mediaList = mediaFiles.stream()
                     .map(file -> {
                         try {
-                            var uploadResult = cloudinaryService.uploadFile(file, "minisocial");
-                            String url = (String) uploadResult.get("secure_url");
-                            String publicId = (String) uploadResult.get("public_id");
-                            String mediaType = file.getContentType().startsWith("image/") ? "image" : "video";
-                            PostMedia media = new PostMedia(url, mediaType, publicId);
+                            UploadResult result = storageService.uploadFile(file, "minisocial");
+                            String contentType = file.getContentType();
+                            String mediaType = (contentType != null && contentType.startsWith("image/")) ? "image" : "video";
+
+                            PostMedia media = new PostMedia(result.url(), mediaType, result.publicId());
                             media.setPost(post);
                             return media;
                         } catch (IOException e) {
@@ -93,11 +66,12 @@ public class PostService {
             post.setMedia(mediaList);
         }
 
-        return toDto(postRepository.save(post));
+        return postMapper.toDto(postRepository.save(post));
     }
 
+    @Override
     @Transactional
-    public Post updatePost(Long postId, String newContent, List<MultipartFile> newMediaFiles) throws IOException {
+    public PostResponseDto updatePost(Long postId, String newContent, List<MultipartFile> newMediaFiles) throws IOException {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
@@ -106,8 +80,8 @@ public class PostService {
         // Xóa media cũ (trên Cloudinary + DB)
         if (post.getMedia() != null && !post.getMedia().isEmpty()) {
             for (PostMedia oldMedia : post.getMedia()) {
-                cloudinaryService.deleteFile(oldMedia.getPublicId());
-                postMediaRepository.delete(oldMedia);
+                storageService.deleteFile(oldMedia.getPublicId(), oldMedia.getMediaType());
+//                postMediaRepository.delete(oldMedia);
             }
             post.getMedia().clear();
         }
@@ -116,10 +90,13 @@ public class PostService {
             List<PostMedia> mediaList = newMediaFiles.stream()
                     .map(file -> {
                         try {
-                            var uploadResult = cloudinaryService.uploadFile(file, "minisocial");
-                            String url = (String) uploadResult.get("secure_url");
-                            String publicId = (String) uploadResult.get("public_id");
-                            String mediaType = file.getContentType().startsWith("image/") ? "image" : "video";
+                            var uploadResult = storageService.uploadFile(file, "minisocial");
+                            String url = uploadResult.url();
+                            String publicId = uploadResult.publicId();
+
+                            String contentType = file.getContentType();
+                            String mediaType = (contentType != null && contentType.startsWith("image/")) ? "image" : "video";
+
                             PostMedia media = new PostMedia(url, mediaType, publicId);
                             media.setPost(post);
                             return media;
@@ -129,16 +106,17 @@ public class PostService {
                     })
                     .collect(Collectors.toList());
 
-            post.setMedia(mediaList);
+            post.getMedia().addAll(mediaList);
         }
 
-        return postRepository.save(post);
+        return postMapper.toDto(postRepository.save(post));
     }
 
+    @Override
     public List<PostResponseDto> getPostsByUserId(Long userId){
         List<Post> posts = postRepository.findByUserId(userId);
         return posts.stream()
-                .map(this::toDto)
+                .map(postMapper::toDto)
                 .collect(Collectors.toList());
     }
 }
