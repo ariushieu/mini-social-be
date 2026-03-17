@@ -6,5 +6,5 @@ import java.io.IOException;
 
 public interface StorageService {
      UploadResult uploadFile(MultipartFile file, String folder) throws IOException;
-     void deleteFile(String publicId) throws IOException;
+     void deleteFile(String publicId, String resourceType) throws IOException;
 }

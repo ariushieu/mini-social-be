@@ -27,7 +27,7 @@ public class PostController {
         return ResponseEntity.ok(postResponseDto);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"}, produces = {"application/json"})
     public ResponseEntity<PostResponseDto> updatePost(
             @PathVariable Long id,
             @RequestParam("content") String content,

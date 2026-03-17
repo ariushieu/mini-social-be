@@ -36,11 +36,11 @@ public class CloudinaryStorageService implements  StorageService{
     }
 
     @Override
-    public void deleteFile(String publicId) throws IOException {
+    public void deleteFile(String publicId, String resourceType) throws IOException {
         cloudinary.uploader().destroy(
                 publicId,
                 ObjectUtils.asMap(
-                        "resource_type", "auto"
+                        "resource_type", resourceType
                 )
         );
     }

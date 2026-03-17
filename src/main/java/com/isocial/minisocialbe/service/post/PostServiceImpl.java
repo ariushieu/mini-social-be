@@ -80,8 +80,8 @@ public class PostServiceImpl implements IPostService{
         // Xóa media cũ (trên Cloudinary + DB)
         if (post.getMedia() != null && !post.getMedia().isEmpty()) {
             for (PostMedia oldMedia : post.getMedia()) {
-                storageService.deleteFile(oldMedia.getPublicId());
-                postMediaRepository.delete(oldMedia);
+                storageService.deleteFile(oldMedia.getPublicId(), oldMedia.getMediaType());
+//                postMediaRepository.delete(oldMedia);
             }
             post.getMedia().clear();
         }
@@ -106,7 +106,7 @@ public class PostServiceImpl implements IPostService{
                     })
                     .collect(Collectors.toList());
 
-            post.setMedia(mediaList);
+            post.getMedia().addAll(mediaList);
         }
 
         return postMapper.toDto(postRepository.save(post));
