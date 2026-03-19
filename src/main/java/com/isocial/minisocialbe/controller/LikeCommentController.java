@@ -2,8 +2,7 @@ package com.isocial.minisocialbe.controller;
 
 import com.isocial.minisocialbe.dto.post.AuthorResponseDto;
 import com.isocial.minisocialbe.exception.ResourceNotFoundException;
-import com.isocial.minisocialbe.repository.LikeRepository;
-import com.isocial.minisocialbe.service.post.LikeService;
+import com.isocial.minisocialbe.service.post.CommentLikeService;
 import com.isocial.minisocialbe.service.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,11 +16,11 @@ import java.util.List;
 @RequestMapping("/api/v1/comments/{commentId}/likes")
 @RequiredArgsConstructor
 public class LikeCommentController {
-    private final LikeService  likeService;
+    private final CommentLikeService commentLikeService;
 
     @GetMapping
     public ResponseEntity<List<AuthorResponseDto>> getUsersWhoLikedComments(@PathVariable("commentId") Long commentId) {
-        List<AuthorResponseDto> users = likeService.getUsersWhoLikedComment(commentId);
+        List<AuthorResponseDto> users = commentLikeService.getUsersWhoLikedComment(commentId);
         return ResponseEntity.ok(users);
     }
 
@@ -31,7 +30,7 @@ public class LikeCommentController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         try {
-            likeService.likeComment(userDetails.getId(), commentId);
+            commentLikeService.likeComment(userDetails.getId(), commentId);
             return ResponseEntity.ok("Liked comment successfully");
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -46,7 +45,7 @@ public class LikeCommentController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         try {
-            likeService.unlikeComment(userDetails.getId(), commentId);
+            commentLikeService.unlikeComment(userDetails.getId(), commentId);
             return ResponseEntity.ok("Unliked comment successfully");
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -58,7 +57,7 @@ public class LikeCommentController {
             @PathVariable Long commentId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        boolean isLiked = likeService.isCommentLikedByUser(userDetails.getId(), commentId);
+        boolean isLiked = commentLikeService.isCommentLikedByUser(userDetails.getId(), commentId);
         return ResponseEntity.ok(isLiked);
     }
 }
