@@ -3,7 +3,7 @@ package com.isocial.minisocialbe.config;
 import com.isocial.minisocialbe.service.auth.JwtAuthenticationFilter;
 import com.isocial.minisocialbe.service.user.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,11 +31,7 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService  customUserDetailsService;
 
-//    private final CustomUserDetailsService customUserDetailsService;
-//
-//    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
-//        this.customUserDetailsService = customUserDetailsService;
-//    }
+
 
     private static final String[] SWAGGER_WHITELIST = {
             "/v3/api-docs",
