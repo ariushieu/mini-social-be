@@ -35,12 +35,8 @@ public class PostServiceImpl implements IPostService{
 
     @Override
     @Transactional
-    public PostResponseDto createPost(String content, List<MultipartFile> mediaFiles) throws IOException {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        var principal = (CustomUserDetails) auth.getPrincipal();
-
-        User user = userRepository.findByEmail(principal.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public PostResponseDto createPost(String content, List<MultipartFile> mediaFiles, CustomUserDetails userDetails) throws IOException {
+        User user = userDetails.getUser();
 
         Post post = new Post();
         post.setContent(content);
