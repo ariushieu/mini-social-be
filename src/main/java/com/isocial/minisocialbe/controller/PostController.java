@@ -2,8 +2,10 @@ package com.isocial.minisocialbe.controller;
 
 import com.isocial.minisocialbe.dto.post.PostResponseDto;
 import com.isocial.minisocialbe.service.post.IPostService;
+import com.isocial.minisocialbe.service.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,10 +22,11 @@ public class PostController {
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"}, produces = {"application/json"})
     public ResponseEntity<PostResponseDto> createPost(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("content") String content,
             @RequestParam(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles
     ) throws IOException {
-        PostResponseDto postResponseDto = postService.createPost(content, mediaFiles);
+        PostResponseDto postResponseDto = postService.createPost(content, mediaFiles, userDetails);
         return ResponseEntity.ok(postResponseDto);
     }
 
