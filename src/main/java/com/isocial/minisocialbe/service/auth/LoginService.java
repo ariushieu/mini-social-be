@@ -2,18 +2,14 @@ package com.isocial.minisocialbe.service.auth;
 
 import com.isocial.minisocialbe.dto.user.LoginResponseDto;
 import com.isocial.minisocialbe.dto.user.UserResponseDto;
+import com.isocial.minisocialbe.mapper.UserMapper;
 import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.UserRepository;
 import com.isocial.minisocialbe.service.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +22,7 @@ public class LoginService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final UserMapper userMapper;
 
     public LoginResponseDto login(String email, String rawPassword) {
 
@@ -43,19 +40,7 @@ public class LoginService {
 
         String accessToken = jwtService.generateAccessToken(customUserDetails);
 
-        UserResponseDto userResponseDto = UserResponseDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .bio(user.getBio())
-                .role(user.getRole())
-                .profilePicture(user.getProfilePicture())
-                .followerCount(user.getFollowerCount())
-                .followingCount(user.getFollowingCount())
-                .joinDate(user.getJoinDate())
-                .lastLogin(user.getLastLogin())
-                .build();
+        UserResponseDto userResponseDto = userMapper.toDto(user);
 
         return LoginResponseDto.builder()
                 .accessToken(accessToken)
