@@ -8,8 +8,9 @@ import com.isocial.minisocialbe.model.FollowId;
 import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.FollowRepository;
 import com.isocial.minisocialbe.repository.UserRepository;
-import jakarta.persistence.EntityManager;
-import org.springframework.context.annotation.Lazy;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
-    public FollowService(FollowRepository followRepository, UserRepository userRepository, @Lazy FollowService followServiceProxy, EntityManager entityManager) {
-        this.followRepository = followRepository;
-        this.userRepository = userRepository;
-    }
 
     @Transactional
     public void followUser(Long followerId, Long followingId) {
@@ -67,10 +65,7 @@ public class FollowService {
         this.updateFollowCounts(followerId, followingId, false);
     }
 
-    // @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateFollowCounts(Long followerId, Long followingId, boolean isFollow) {
-//        System.out.println("updateFollowCounts called: follower=" + followerId + ", following=" + followingId + ", isFollow=" + isFollow);
-//       entityManager.clear();
 
         if (isFollow) {
             userRepository.incrementFollowingCount(followerId);
@@ -80,7 +75,6 @@ public class FollowService {
             userRepository.decrementFollowerCount(followingId);
         }
 
-//        System.out.println("=== END updateFollowCounts ===");
     }
 
     public List<Long> getFollowingIds(Long userId) {
@@ -147,9 +141,9 @@ public class FollowService {
     /**
      * Kiểm tra mutual follow (cả hai đều follow nhau)
      */
-    public boolean isMutualFollow(Long userId1, Long userId2) {
-        return isFollowing(userId1, userId2) && isFollowing(userId2, userId1);
-    }
+//    public boolean isMutualFollow(Long userId1, Long userId2) {
+//        return isFollowing(userId1, userId2) && isFollowing(userId2, userId1);
+//    }
 
     private FollowUserDto mapToFollowUserDto(User user, LocalDateTime followedAt, Set<Long> currentUserFollowingIds) {
         return FollowUserDto.builder()
