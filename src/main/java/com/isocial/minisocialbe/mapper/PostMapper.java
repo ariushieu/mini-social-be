@@ -33,4 +33,10 @@ public class PostMapper {
                 .media(mediaDtos)
                 .build();
     }
+
+    public PostResponseDto toDto(Post post, Boolean isLiked) {
+        PostResponseDto dto = toDto(post);
+        dto.setIsLiked(isLiked);
+        return dto;
+    }
 }
