@@ -1,9 +1,9 @@
 package com.isocial.minisocialbe.service.post;
 
-import com.isocial.minisocialbe.dto.post.AuthorResponseDto;
-import com.isocial.minisocialbe.dto.post.MediaResponseDto;
+
 import com.isocial.minisocialbe.dto.post.PostResponseDto;
 import com.isocial.minisocialbe.enums.TargetType;
+import com.isocial.minisocialbe.mapper.PostMapper;
 import com.isocial.minisocialbe.model.Post;
 import com.isocial.minisocialbe.repository.FollowRepository;
 import com.isocial.minisocialbe.repository.LikeRepository;
@@ -24,6 +24,7 @@ public class TrendingService {
     private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final LikeRepository likeRepository;
+    private final PostMapper postMapper;
 
     @Transactional(readOnly = true)
     public Page<PostResponseDto> getTrendingPosts(Long currentUserId, Pageable pageable) {
@@ -43,30 +44,8 @@ public class TrendingService {
                 currentUserId, TargetType.POST, postIds);
 
         // 4. Map to DTO
-        return posts.map(post -> toDto(post, likedPostIds.contains(post.getId())));
+        return posts.map(post -> postMapper.toDto(post, likedPostIds.contains(post.getId())
+        ));
     }
 
-    private PostResponseDto toDto(Post post, Boolean isLiked) {
-        List<MediaResponseDto> mediaDtos = post.getMedia() != null
-                ? post.getMedia().stream()
-                .map(m -> new MediaResponseDto(m.getId(), m.getMediaUrl(), m.getMediaType()))
-                .toList()
-                : List.of();
-
-        return PostResponseDto.builder()
-                .id(post.getId())
-                .content(post.getContent())
-                .user(AuthorResponseDto.builder()
-                        .id(post.getUser().getId())
-                        .username(post.getUser().getUsername())
-                        .fullName(post.getUser().getFullName())
-                        .profilePicture(post.getUser().getProfilePicture())
-                        .build())
-                .likeCount(post.getLikeCount())
-                .commentCount(post.getCommentCount())
-                .createdAt(post.getCreatedAt())
-                .media(mediaDtos)
-                .isLiked(isLiked)  // <-- set giá trị
-                .build();
-    }
 }

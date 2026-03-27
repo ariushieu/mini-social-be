@@ -1,9 +1,9 @@
 package com.isocial.minisocialbe.service.post;
 
-import com.isocial.minisocialbe.dto.post.AuthorResponseDto;
-import com.isocial.minisocialbe.dto.post.MediaResponseDto;
+
 import com.isocial.minisocialbe.dto.post.PostResponseDto;
 import com.isocial.minisocialbe.enums.TargetType;
+import com.isocial.minisocialbe.mapper.PostMapper;
 import com.isocial.minisocialbe.model.Post;
 import com.isocial.minisocialbe.repository.FollowRepository;
 import com.isocial.minisocialbe.repository.LikeRepository;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,7 @@ public class NewfeedService {
     private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final LikeRepository likeRepository;
+    private final PostMapper postMapper;
 
     @Transactional(readOnly = true)
     public Page<PostResponseDto> getNewsfeed(Long currentUserId, Pageable pageable) {
@@ -47,31 +48,10 @@ public class NewfeedService {
                 postIds
         );
 
-        // 5. Map sang DTO với isLiked
-        return posts.map(post -> toDto(post, likedPostIds.contains(post.getId())));
+        // 5.
+        return posts.map(post -> postMapper.toDto(post, likedPostIds.contains(post.getId())
+        ));
     }
 
-    private PostResponseDto toDto(Post post, Boolean isLiked) {
-        List<MediaResponseDto> mediaDtos = post.getMedia() != null
-                ? post.getMedia().stream()
-                .map(m -> new MediaResponseDto(m.getId(), m.getMediaUrl(), m.getMediaType()))
-                .toList()
-                : List.of();
 
-        return PostResponseDto.builder()
-                .id(post.getId())
-                .content(post.getContent())
-                .user(AuthorResponseDto.builder()
-                        .id(post.getUser().getId())
-                        .username(post.getUser().getUsername())
-                        .fullName(post.getUser().getFullName())
-                        .profilePicture(post.getUser().getProfilePicture())
-                        .build())
-                .likeCount(post.getLikeCount())
-                .commentCount(post.getCommentCount())
-                .createdAt(post.getCreatedAt())
-                .media(mediaDtos)
-                .isLiked(isLiked)  // <-- set giá trị
-                .build();
-    }
 }
