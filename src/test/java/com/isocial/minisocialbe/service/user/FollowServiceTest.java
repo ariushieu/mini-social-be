@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.isocial.minisocialbe.exception.ResourceNotFoundException;
+
 
 import java.util.Optional;
 
@@ -60,5 +62,32 @@ public class FollowServiceTest {
                 .hasMessageContaining("You already follow this user.");
 
         verify(followRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void unFollowUser_exits_throwsResourceNotFoundException(){
+        Long followerId = 1L;
+        Long followingId = 2L;
+
+        when(followRepository.existsById_FollowerAndId_Following(followerId,followingId)).thenReturn(false);
+
+        assertThatThrownBy(()-> followService.unfollowUser(followerId, followingId))
+                .isInstanceOf(ResourceNotFoundException.class);
+        verify(followRepository, never()).deleteByFollowerAndFollowing(any(), any());
+    }
+
+    @Test
+    void unfollowUser_validInput_deletesFollowAndUpdatesCounts(){
+        Long followerId = 1L;
+        Long followingId = 2L;
+
+        when(followRepository.existsById_FollowerAndId_Following(followerId,followingId)).thenReturn(true);
+
+        followService.unfollowUser(followerId, followingId);
+
+        verify(followRepository).deleteByFollowerAndFollowing(followerId, followingId);
+        verify(userRepository).decrementFollowingCount(followerId);
+        verify(userRepository).decrementFollowerCount(followingId);
+
     }
 }
