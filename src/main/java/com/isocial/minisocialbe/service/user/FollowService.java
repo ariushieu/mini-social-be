@@ -49,7 +49,7 @@ public class FollowService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        followRepository.saveAndFlush(follow); // Đổi thành saveAndFlush
+        followRepository.saveAndFlush(follow); // lưu ngay xuống db
 
         this.updateFollowCounts(followerId, followingId, true);
     }
