@@ -5,27 +5,27 @@
 
 set -e
 
-echo "🚀 Starting deployment..."
+echo "Starting deployment..."
 
 # Navigate to project directory
 cd /opt/mini-social-be
 
 # Pull latest Docker image
-echo "📦 Pulling latest Docker image..."
+echo "Pulling latest Docker image..."
 docker-compose pull app
 
 # Stop and remove old container
-echo "🛑 Stopping old container..."
+echo "Stopping old container..."
 docker-compose down app
 
 # Start new container
-echo "✅ Starting new container..."
+echo "Starting new container..."
 docker-compose up -d app
 
 # Clean up old images
-echo "🧹 Cleaning up old images..."
+echo "Cleaning up old images..."
 docker image prune -f
 
-echo "✨ Deployment complete!"
-echo "📊 Container status:"
+echo "Deployment complete!"
+echo "Container status:"
 docker-compose ps
