@@ -48,4 +48,12 @@ jobs:
             docker-compose stop app
             docker-compose rm -f app
             docker-compose up -d app
-            docker image prune -f
+
+      - name: Clean up old Docker images
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            docker image prune -af --filter "until=48h"
