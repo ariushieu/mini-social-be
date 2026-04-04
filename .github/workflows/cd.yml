@@ -45,5 +45,6 @@ jobs:
           script: |
             cd /opt/mini-social-be
             docker-compose pull app
+            docker-compose down app
             docker-compose up -d app
             docker image prune -f
