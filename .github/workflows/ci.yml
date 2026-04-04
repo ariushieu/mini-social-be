@@ -6,7 +6,7 @@ on:
       - "**" # Run on all branches
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build:
