@@ -18,7 +18,10 @@ public class CloudinaryStorageService implements  StorageService{
     public UploadResult uploadFile(MultipartFile file, String folder) throws IOException {
 
         String contentType = file.getContentType();
-        String resourceType = (contentType != null && contentType.startsWith("image/")) ? "image" : "auto";
+
+        boolean isImage = contentType != null && contentType.startsWith("image/");
+        String resourceType = isImage ? "image" : "auto";
+        String mediaType = isImage ? "image" : "video";
 
         @SuppressWarnings("unchecked")
         Map<String, Object> uploadResult = cloudinary.uploader().upload(
@@ -32,7 +35,7 @@ public class CloudinaryStorageService implements  StorageService{
         String url = (String) uploadResult.get("secure_url");
         String publicId = (String) uploadResult.get("public_id");
 
-        return new UploadResult(url, publicId);
+        return new UploadResult(url, publicId, mediaType);
     }
 
     @Override
