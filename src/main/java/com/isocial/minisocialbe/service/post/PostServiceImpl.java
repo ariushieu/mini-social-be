@@ -5,9 +5,7 @@ import com.isocial.minisocialbe.mapper.PostMapper;
 import com.isocial.minisocialbe.model.Post;
 import com.isocial.minisocialbe.model.PostMedia;
 import com.isocial.minisocialbe.model.User;
-import com.isocial.minisocialbe.repository.PostMediaRepository;
 import com.isocial.minisocialbe.repository.PostRepository;
-import com.isocial.minisocialbe.repository.UserRepository;
 
 import com.isocial.minisocialbe.service.storage.StorageService;
 import com.isocial.minisocialbe.service.storage.UploadResult;
@@ -27,9 +25,7 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements IPostService{
 
     private final PostRepository postRepository;
-    private final PostMediaRepository postMediaRepository;
     private final StorageService storageService;
-    private final UserRepository userRepository;
     private final PostMapper postMapper;
 
 
@@ -47,10 +43,7 @@ public class PostServiceImpl implements IPostService{
                     .map(file -> {
                         try {
                             UploadResult result = storageService.uploadFile(file, "minisocial");
-                            String contentType = file.getContentType();
-                            String mediaType = (contentType != null && contentType.startsWith("image/")) ? "image" : "video";
-
-                            PostMedia media = new PostMedia(result.url(), mediaType, result.publicId());
+                            PostMedia media = new PostMedia(result.url(), result.mediaType(), result.publicId());
                             media.setPost(post);
                             return media;
                         } catch (IOException e) {
@@ -86,14 +79,8 @@ public class PostServiceImpl implements IPostService{
             List<PostMedia> mediaList = newMediaFiles.stream()
                     .map(file -> {
                         try {
-                            var uploadResult = storageService.uploadFile(file, "minisocial");
-                            String url = uploadResult.url();
-                            String publicId = uploadResult.publicId();
-
-                            String contentType = file.getContentType();
-                            String mediaType = (contentType != null && contentType.startsWith("image/")) ? "image" : "video";
-
-                            PostMedia media = new PostMedia(url, mediaType, publicId);
+                            UploadResult result = storageService.uploadFile(file, "minisocial");
+                            PostMedia media = new PostMedia(result.url(), result.mediaType(), result.publicId());
                             media.setPost(post);
                             return media;
                         } catch (IOException e) {
