@@ -9,7 +9,7 @@ import com.isocial.minisocialbe.exception.TokenRefreshException;
 import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.service.auth.*;
 import com.isocial.minisocialbe.service.user.CustomUserDetails;
-import jakarta.mail.MessagingException;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,17 +34,9 @@ public class AuthController {
      @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserCreateDto userCreateDto,
                                                HttpServletRequest request) {
-        try {
             String siteURL = getSiteURL(request);
             registerService.registerNewUser(userCreateDto, siteURL);
             return new ResponseEntity<>("User registered successfully! Please check your email", HttpStatus.CREATED);
-        } catch (MessagingException e) {
-            return new ResponseEntity<>("Đăng ký thành công nhưng không thể gửi email xác thực.", HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (UnsupportedEncodingException e) {
-            return new ResponseEntity<>("Lỗi khi xử lý email.", HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Đăng ký thất bại: " + e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
     }
 
     private String getSiteURL(HttpServletRequest request) {
