@@ -39,13 +39,16 @@ public class FollowService {
             throw new IllegalArgumentException("You already follow this user.");
         }
 
-        User followerRef = userRepository.getReferenceById(followerId);
-        User followingRef = userRepository.getReferenceById(followingId);
+        User follower = userRepository.findById(followerId)
+                .orElseThrow(()-> new ResourceNotFoundException("Follower user not found"));
+
+        User following = userRepository.findById(followingId)
+                .orElseThrow(()-> new ResourceNotFoundException("Following user not found"));
 
         Follow follow = Follow.builder()
                 .id(FollowId.builder().follower(followerId).following(followingId).build())
-                .followerUser(followerRef)
-                .followingUser(followingRef)
+                .followerUser(follower)
+                .followingUser(following)
                 .createdAt(LocalDateTime.now())
                 .build();
 
