@@ -3,8 +3,8 @@ package com.isocial.minisocialbe.service.post;
 import com.isocial.minisocialbe.dto.comment.CommentCreateDto;
 import com.isocial.minisocialbe.dto.comment.CommentResponseDto;
 import com.isocial.minisocialbe.dto.comment.CommentUpdateDto;
-import com.isocial.minisocialbe.dto.user.UserResponseDto;
 import com.isocial.minisocialbe.exception.ResourceNotFoundException;
+import com.isocial.minisocialbe.mapper.CommentMapper;
 import com.isocial.minisocialbe.model.Comment;
 import com.isocial.minisocialbe.model.Post;
 import com.isocial.minisocialbe.model.User;
@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,27 +24,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
-    private CommentResponseDto toDto(Comment comment) {
-        UserResponseDto userDto = UserResponseDto.builder()
-                .id(comment.getUser().getId())
-                .username(comment.getUser().getUsername())
-                .fullName(comment.getUser().getFullName())
-                .profilePicture(comment.getUser().getProfilePicture())
-                .build();
-
-        return CommentResponseDto.builder()
-                .id(comment.getId())
-                .postId(comment.getPost().getId())
-                .user(userDto)
-                .commentText(comment.getCommentText())
-                .likeCount(comment.getLikeCount())
-                .replyCount(comment.getReplyCount())
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .replies(null) // Không load replies tự động, dùng endpoint riêng
-                .build();
-    }
+    private final CommentMapper commentMapper;
 
     @Transactional
     public CommentResponseDto createComment(CommentCreateDto dto, Long currentUserId) {
@@ -79,7 +58,7 @@ public class CommentService {
         if (dto.getParentCommentId() == null) {
             postRepository.incrementCommentCount(post.getId());
         }
-        return toDto(savedComment);
+        return commentMapper.toDto(savedComment);
     }
 
     @Transactional(readOnly = true)
@@ -90,7 +69,7 @@ public class CommentService {
 
         List<Comment> comments = commentRepository.findByPostIdAndParentCommentIsNull(postId);
         return comments.stream()
-                .map(this::toDto)
+                .map(commentMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -102,7 +81,7 @@ public class CommentService {
 
         List<Comment> replies = commentRepository.findByParentCommentId(commentId);
         return replies.stream()
-                .map(this::toDto)
+                .map(commentMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -120,7 +99,7 @@ public class CommentService {
         comment.setCommentText(dto.getCommentText());
 
         Comment updatedComment = commentRepository.save(comment);
-        return toDto(updatedComment);
+        return commentMapper.toDto(updatedComment);
     }
 
     @Transactional
