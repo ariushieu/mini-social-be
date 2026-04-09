@@ -22,4 +22,13 @@ public class UserMapper {
                 .lastLogin(user.getLastLogin())
                 .build();
     }
+
+    public UserResponseDto toLightweightDto(User user){
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .fullName(user.getFullName())
+                .profilePicture(user.getProfilePicture())
+                .build();
+    }
 }
