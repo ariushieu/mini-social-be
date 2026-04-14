@@ -1,17 +1,13 @@
 package com.isocial.minisocialbe.service.auth;
 
 import com.isocial.minisocialbe.dto.user.UserCreateDto;
-import com.isocial.minisocialbe.exception.EmailSendingException;
 import com.isocial.minisocialbe.model.User;
 import com.isocial.minisocialbe.repository.UserRepository;
 import com.isocial.minisocialbe.service.validate.RegisterValidation;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.io.UnsupportedEncodingException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +18,7 @@ public class RegisterService {
 
     private final RegisterValidation registerValidation;
 
-    private final MailService mailService;
+    private final ResendMailService resendMailService;
 
     public User registerNewUser(UserCreateDto userCreateDto, String siteURL) {
         registerValidation.validateUserCreation(userCreateDto);
@@ -41,11 +37,7 @@ public class RegisterService {
         newUser.setPassword(passwordEncoder.encode(userCreateDto.getPassword()));
         User savedUser = userRepository.save(newUser);
 
-        try{
-            mailService.sendVerificationMail(savedUser, siteURL);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new EmailSendingException("Không thể gửi mail xác thực", e);
-        }
+        resendMailService.sendVerificationMail(savedUser);
 
         return savedUser;
     }
