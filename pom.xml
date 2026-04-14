@@ -29,6 +29,8 @@
     <properties>
         <java.version>17</java.version>
         <hikari.version>5.1.0</hikari.version>
+        <tomcat.version>10.1.34</tomcat.version>
+        <okio.version>3.9.1</okio.version>
     </properties>
 
     <dependencyManagement>
@@ -42,6 +44,11 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>1.78.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio</artifactId>
+                <version>${okio.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -113,8 +120,9 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
+            <groupId>com.resend</groupId>
+            <artifactId>resend-java</artifactId>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.cloudinary</groupId>
