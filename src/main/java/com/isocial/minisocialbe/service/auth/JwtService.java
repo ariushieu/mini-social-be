@@ -55,7 +55,7 @@ public class JwtService {
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenDurationMs))
-                .signWith(SECRET_KEY, Jwts.SIG.HS256)
+                .signWith((javax.crypto.SecretKey) SECRET_KEY)
                 .compact();
     }
 
