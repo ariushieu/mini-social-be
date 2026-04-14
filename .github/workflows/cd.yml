@@ -44,6 +44,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /opt/mini-social-be
+            git pull origin master
             docker-compose pull app
             docker-compose stop app
             docker-compose rm -f app
