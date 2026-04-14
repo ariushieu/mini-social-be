@@ -1,20 +1,15 @@
 package com.isocial.minisocialbe.service.auth;
 
 import com.isocial.minisocialbe.service.user.CustomUserDetails;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.*;
 
@@ -54,13 +49,13 @@ public class JwtService {
         claims.put("role", role);
         claims.put("userId", userDetails.getUser().getId());
 
-        // 3. Sử dụng setClaims() để thêm tất cả claim vào builder
+        // 3. Sử dụng claims() để thêm tất cả claim vào builder
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + accessTokenDurationMs))
-                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
+                .claims(claims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenDurationMs))
+                .signWith(SECRET_KEY, Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -76,7 +71,7 @@ public class JwtService {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token);
+            Jwts.parser().verifyWith((javax.crypto.SecretKey) SECRET_KEY).build().parseSignedClaims(token);
             return true;
         } catch (Exception e) {
             return false;
@@ -84,7 +79,11 @@ public class JwtService {
     }
 
     public String getSubject(String token) {
-        Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token);
-        return claimsJws.getBody().getSubject();
+        return Jwts.parser()
+                .verifyWith((javax.crypto.SecretKey) SECRET_KEY)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
     }
 }
