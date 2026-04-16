@@ -2,8 +2,8 @@ name: CI - Build and Test
 
 on:
   push:
-    branches:
-      - "**" # Run on all branches
+    branches-ignore:
+      - master                        # skip CI on master — CD handles it
   pull_request:
     branches:
       - master
@@ -24,4 +24,4 @@ jobs:
           cache: "maven"
 
       - name: Build with Maven
-        run: mvn clean install -DskipTests
+        run: mvn clean verify

@@ -23,35 +23,53 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      # --- Docker Build & Push ---
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: qhieu05/mini-social-be:latest
+          tags: |
+            qhieu05/mini-social-be:latest
+            qhieu05/mini-social-be:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+      # --- Deploy to VPS ---
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /opt/mini-social-be
-            git pull origin master
+            cd ~/vps-config/projects/mini-social-be
             docker-compose pull app
-            docker-compose stop app
-            docker-compose rm -f app
-            docker-compose up -d app
+            docker-compose up -d --force-recreate app
 
+      - name: Health check
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sleep 15
+            docker inspect --format='{{.State.Health.Status}}' mini-social-be-app 2>/dev/null || \
+            docker inspect --format='{{.State.Status}}' mini-social-be-app
+
+      # --- Cleanup ---
       - name: Clean up old Docker images
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}

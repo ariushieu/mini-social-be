@@ -1,69 +1,53 @@
-version: "3.8"
-
 services:
+  app:
+    image: qhieu05/mini-social-be:latest
+    container_name: mini-social-be-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - backend-network
+    mem_limit: 1g
+    cpus: 1.0
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   mysql:
     image: mysql:8.0
-    container_name: isocial-mysql
-    restart: always
+    container_name: mini-social-be-db
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: isocial_network
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - isocial-network
+      - /opt/data/mini-social-be/mysql:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  app:
-    image: qhieu05/mini-social-be:latest
-    container_name: isocial-app
-    restart: always
-    depends_on:
-      mysql:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/isocial_network?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      SECRET_KEY: ${SECRET_KEY}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
-      FRONTEND_URL: ${FRONTEND_URL}
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
-      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
-      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-    ports:
-      - "8080:8080"
     networks:
-      - isocial-network
-    deploy:
-      resources:
-        limits:
-          memory: 1G
+      - backend-network
+    mem_limit: 512m
+    cpus: 0.5
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-
-volumes:
-  mysql_data:
 
 networks:
-  isocial-network:
-    driver: bridge
+  backend-network:
+    external: true
