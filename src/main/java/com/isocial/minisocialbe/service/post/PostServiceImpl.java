@@ -9,8 +9,10 @@ import com.isocial.minisocialbe.repository.PostRepository;
 
 import com.isocial.minisocialbe.service.storage.StorageService;
 import com.isocial.minisocialbe.service.storage.UploadResult;
+import com.isocial.minisocialbe.exception.ResourceNotFoundException;
 import com.isocial.minisocialbe.service.user.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +95,29 @@ public class PostServiceImpl implements IPostService{
         }
 
         return postMapper.toDto(postRepository.save(post));
+    }
+
+    @Override
+    @Transactional
+    public void deletePost(Long postId, CustomUserDetails userDetails) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
+        if (!post.getUser().getId().equals(userDetails.getUser().getId())) {
+            throw new AccessDeniedException("You are not allowed to delete this post");
+        }
+
+        if (post.getMedia() != null && !post.getMedia().isEmpty()) {
+            for (PostMedia media : post.getMedia()) {
+                try {
+                    storageService.deleteFile(media.getPublicId(), media.getMediaType());
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to delete media from storage", e);
+                }
+            }
+        }
+
+        postRepository.delete(post);
     }
 
     @Override

@@ -11,4 +11,5 @@ public interface IPostService {
     PostResponseDto createPost(String content, List<MultipartFile> mediaFiles, CustomUserDetails userDetails) throws IOException;
     PostResponseDto updatePost(Long postId, String newContent, List<MultipartFile> newMediaFiles) throws IOException;
     List<PostResponseDto> getPostsByUserId(Long userId);
+    void deletePost(Long postId, CustomUserDetails userDetails);
 }
