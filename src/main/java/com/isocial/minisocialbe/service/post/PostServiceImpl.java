@@ -39,20 +39,7 @@ public class PostServiceImpl implements IPostService{
         post.setUser(user);
 
         if (mediaFiles != null && !mediaFiles.isEmpty()) {
-            List<PostMedia> mediaList = mediaFiles.stream()
-                    .map(file -> {
-                        try {
-                            UploadResult result = storageService.uploadFile(file, "minisocial");
-                            PostMedia media = new PostMedia(result.url(), result.mediaType(), result.publicId());
-                            media.setPost(post);
-                            return media;
-                        } catch (IOException e) {
-                            throw new RuntimeException("Failed to upload file to Cloudinary", e);
-                        }
-                    })
-                    .collect(Collectors.toList());
-
-            post.setMedia(mediaList);
+            post.setMedia(buildMediaList(mediaFiles, post));
         }
 
         return postMapper.toDto(postRepository.save(post));
@@ -76,20 +63,7 @@ public class PostServiceImpl implements IPostService{
         }
 
         if (newMediaFiles != null && !newMediaFiles.isEmpty()) {
-            List<PostMedia> mediaList = newMediaFiles.stream()
-                    .map(file -> {
-                        try {
-                            UploadResult result = storageService.uploadFile(file, "minisocial");
-                            PostMedia media = new PostMedia(result.url(), result.mediaType(), result.publicId());
-                            media.setPost(post);
-                            return media;
-                        } catch (IOException e) {
-                            throw new RuntimeException("Failed to upload file to Cloudinary", e);
-                        }
-                    })
-                    .collect(Collectors.toList());
-
-            post.getMedia().addAll(mediaList);
+            post.getMedia().addAll(buildMediaList(newMediaFiles, post));
         }
 
         return postMapper.toDto(postRepository.save(post));
@@ -100,6 +74,21 @@ public class PostServiceImpl implements IPostService{
         List<Post> posts = postRepository.findByUserId(userId);
         return posts.stream()
                 .map(postMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private List<PostMedia> buildMediaList(List<MultipartFile> files, Post post) {
+        return files.stream()
+                .map(file -> {
+                    try {
+                        UploadResult result = storageService.uploadFile(file, "minisocial");
+                        PostMedia media = new PostMedia(result.url(), result.mediaType(), result.publicId());
+                        media.setPost(post);
+                        return media;
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to upload file to Cloudinary", e);
+                    }
+                })
                 .collect(Collectors.toList());
     }
 }
