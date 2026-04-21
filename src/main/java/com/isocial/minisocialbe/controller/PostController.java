@@ -39,4 +39,13 @@ public class PostController {
         PostResponseDto updatedPost = postService.updatePost(id, content, mediaFiles);
         return ResponseEntity.ok(updatedPost);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        postService.deletePost(id, userDetails);
+        return ResponseEntity.noContent().build();
+    }
 }
