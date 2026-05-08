@@ -9,6 +9,10 @@ on:
   push:
     branches:
       - master  # Thay thành 'main' nếu ông đã đổi tên nhánh chính
+    paths-ignore:
+      - "**/*.md"
+      - ".env.example"
+      - "docs/**"
 
 jobs:
   deploy:
@@ -57,17 +61,16 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -eu
+
             # Truy cập thư mục dự án
             cd ~/vps-config/projects/mini-social-be
-            
+
             # Kéo bản cập nhật mới nhất từ Docker Hub
             docker compose pull app
-            
-            # Dọn dẹp các container "mồ côi" (Ghost Processes) để tránh xung đột Port
-            docker compose down --remove-orphans
-            
-            # Khởi động lại App với bản Image mới nhất
-            docker compose up -d --force-recreate app
+
+            # Chỉ recreate app, không restart MySQL
+            docker compose up -d --no-deps --force-recreate app
 
       - name: Health check
         uses: appleboy/ssh-action@v1.2.2
@@ -76,11 +79,18 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -eu
+
             # Chờ 20 giây để Spring Boot khởi động hoàn tất
             sleep 20
-            # Kiểm tra trạng thái container
-            docker inspect --format='{{.State.Health.Status}}' mini-social-be-app 2>/dev/null || \
-            docker inspect --format='{{.State.Status}}' mini-social-be-app
+
+            # Kiểm tra trạng thái container và fail workflow nếu app không chạy
+            status=$(docker inspect --format='{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' mini-social-be-app)
+            echo "Container status: $status"
+            if [ "$status" != "healthy" ] && [ "$status" != "running" ]; then
+              docker logs --tail=100 mini-social-be-app
+              exit 1
+            fi
 
       # --- Cleanup ---
       - name: Clean up old Docker images
